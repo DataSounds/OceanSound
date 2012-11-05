@@ -1,0 +1,71 @@
+#/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+'''
+subset_MODIS
+
+Programa para Fazer um subset teemporal de um pixel de imagens MODIS
+Dentro dos limites Lat e Long determinados.
+
+Baseado em subset_MODIS.py
+
+Author =  Arnaldo Russo
+e-mail =  arnaldorusso@gmail.com
+'''
+from pyhdf.SD import *
+import numpy as np
+import glob
+#import matplotlib.pyplot as plt
+#from mpl_toolkits.basemap import Basemap
+#import scipy.io
+
+
+## setting limits to cut
+LATLIMS = np.array([0]) #foz do rio amazonas
+LONLIMS = np.array([-45])
+#LATLIMS = np.array([-23]) #Oc. Atlantico
+#LONLIMS = np.array([-30])
+
+indir = '/DADOS/Banco_dados/Imagens/L3/MODIS_Chla_9km/'
+outdir = '/DADOS/Dropbox/python_stuff/CBO_music/'
+
+filelist = glob.glob(indir+'A*')
+nfiles = len(filelist)
+files = []
+for path in filelist:
+  files.append(path[len(indir):]) # remove path name
+
+names = []
+multi_pix = []
+for i in range(len(filelist)):
+    A = SD(filelist[i])
+    a = A.attributes()
+    for k in xrange(0,len(a.keys())):
+        nm = a.keys()[k]
+        names.append(nm.replace(" ","_"))        
+    pin = dict(zip(names,a.values()[:]))
+    lon = np.arange(pin['Westernmost_Longitude'],pin['Easternmost_Longitude'],pin['Longitude_Step'])
+    lat = np.arange(pin['Northernmost_Latitude'],pin['Southernmost_Latitude'],-pin['Latitude_Step'])
+    # Get the indices needed for the area of interest
+    ilt = np.int(np.argmin(np.abs(lat-max(LATLIMS)))) # argmin catch the indices
+    ilg = np.int(np.argmin(np.abs(lon-min(LONLIMS)))) # of minor element
+    # retrieve data SDS
+    d = A.datasets()
+    sds_name = d.keys()[0] # name of sds. Dictionary method.
+    sds = A.select(sds_name)
+    ## load the subset of data needed for the map limits given
+    P = sds[ilt,ilg]
+    P = np.double(P)    
+    #if P < pin['Data_Minimum']:
+    #    P = np.nan
+    P[P<pin['Data_Minimum']] = np.nan    
+    P = (pin['Slope']*P+pin['Intercept'])    
+    Lat = lat[ilt] # lat[ilt+np.arange(0,ltlm-1)]
+    Lon = lon[ilg] # lon[ilg+np.arange(0,lglm-1)]
+    multi_pix.append(P)
+
+
+#multi_pix[multi_pix < pin['Data_Minimum']] = np.nan
+PAM = np.asarray(multi_pix)
+data = {"PAM":PAM, "Lat":Lat, "Lon":Lon}
+np.savez(outdir+'multiPixAM', **data)
