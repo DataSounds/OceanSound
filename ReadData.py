@@ -57,8 +57,7 @@ Plg,Plt = np.meshgrid(LG,LT)
 
 #Combining images
 data = np.zeros([len(filelist),ltlm,lglm])
-#for i in range(len(filelist)):
-for i in range(1):
+for i in range(len(filelist)):
     A = SD(filelist[i])
     d = A.datasets()
     sds_name = d.keys()[0]
@@ -66,7 +65,7 @@ for i in range(1):
     data[i] = sds.get()
 
 data = np.ma.masked_values(data,-32767)
-data = (pin['Slope']*data+pin['Intercept'])
+#data = (pin['Slope']*data+pin['Intercept'])
 data = np.log(data)
 
 np.save('multi_data',data)
