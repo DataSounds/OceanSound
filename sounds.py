@@ -2,11 +2,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-Sons da cor do Oceano
-
-## convenções
-Para cada mês de janeiro, a nota poderia ser lida na clave de fá.
-Se janeiro for NAN (a gente tem que pensar nisso)
+Sounds of Ocean Color
 '''
 
 import numpy as np
@@ -137,7 +133,31 @@ def note_name_nan(number):
 def notes_names_nan(notes):
     return [note_name_nan(x) for x in notes]
 
+def scale_of_year(arr, mode = 'major'):
+    '''
+    INPUT:
+    arr: is an array
+    mode: may be a 'major' or 'minor'
+    
+    RETURN
+    Year Scale
+    Mean note of time series referenced by scale.
+    '''
+    major_disp = np.array([0,2,4,5,7,9,11,12])
+    minor_disp = np.array([0,2,3,5,7,8,10,12])
+    arr_mean = np.nansum(arr)/len(arr)
+    val = set_scale(arr_mean, arr, mode)
+    val_mean = np.nansum(val)/len(val)
+    if mode == str('major'):
+        mj = mod12(major_disp + val_mean)
+    elif mode == str('minor'):
+        mj = mod12(minor_disp + val_mean)
+    year_notes = notes_names(np.int32(mj))
+    return ' '.join(year_notes)
 
+def mean_years_scaled(arr, mode = 'major')
+    #para que possa pegar as médias de cada ano,
+    #baseadas na escala adotada para a série temporal
 
 am = np.double(a['PAM'])
 at = np.double(b['PAT'])
@@ -152,7 +172,30 @@ am_fig = notes_names_nan(np.int32(am_notes))
 print am_fig
 
 # get a beginning chord for each year of Temporal Series
-years = [row for row in am_notes.reshape((-1,12))]
+mean_years = [np.nansum(row)/len(row) for row in am_notes.reshape((-1,12))]
+y_mean = np.nansum(am)/len(am)
+val = set_scale(y_mean, am, mode = 'major')
+mean_years_val = [np.nansum(row)/len(row) for row in val.reshape((-1,12))]
+serie_mean = np.nansum(val)/len(val)
+mean_year_fig = note_name(np.int32(serie_mean))
+note_mean_year = np.int32(set_scale(serie_mean, am, mode = 'major'))
+fig_mean_year = notes_names_nan(np.int32(note_mean_year))
+year_scale = scale_of_year(am, mode = 'major')
+
+chords = []
+for i in mean_years_val:
+    note_symbol = Note(np.int32(i))
+    y_scale = NoteSeq(year_scale)
+    a = note_symbol.harmonize(y_scale)
+    print a
+    #chords.append(a)
+    # tem alguma coisa errada com a escala e as notas médias da escala.
+    # os mean_year_val ficam com notas fora da escala do ano.
+    # talvez pela quantidade de np.int32 que vai reduzindo o numero.
+    #Revisar isso.
+    # nesse loop, tá gerando o acorde somente para os dois primeiros anos
+    ##notes_names(np.int32(note_mean_year)) #para ter as figuras das notas
+
 
 # Transform it to a MIDI file.
 am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
@@ -195,8 +238,8 @@ midi.write("am_scaled_minor.mid")
 
 
 #    Através das análises de frequência com Fourier, determinar: 
-#        O tom pode ser em função da primeira "nota" de cada ano.
-#        (C, C#, D, D#, E, F, F#, G, G#, A, A#, B).
+#        O tom pode ser em função da nota proveniente do valor médio de
+#        toda a série temporal (C, C#, D, D#, E, F, F#, G, G#, A, A#, B).
 #        Qual a escala a ser utilizada. Podemos escolher algumas.
 #        (maior(Jõnico), menor(eólica), dórica, frígica, lídica, \
 #         mixolídica, lócrica, pentatônica-Maior, pentatonica-Menor, Blues\
