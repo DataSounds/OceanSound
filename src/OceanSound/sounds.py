@@ -6,13 +6,8 @@ Sounds of Ocean Color
 '''
 
 import numpy as np
-import matplotlib.pyplot as plt
 from pyknon.simplemusic import *
 from pyknon.genmidi import *
-
-a = np.load('multiPixAM.npz') # Foz do Rio Amazonas
-b = np.load('multiPixAT.npz') # Atlântico Sul
-
 
 # interp
 def lin_interp(self):
@@ -101,7 +96,6 @@ def set_scale(note, arr, mode = 'major'):
             pass
         if i <= scale_class[1]:
             arr[j] = mj[0]
-            print i
         elif i > scale_class[1] and i <= scale_class[2]:
             arr[j] = mj[1]
         elif i > scale_class[2] and i <= scale_class[3]:
@@ -140,8 +134,10 @@ def scale_of_year(arr, mode = 'major'):
     mode: may be a 'major' or 'minor'
     
     RETURN
-    Year Scale
-    Mean note of time series referenced by scale.
+    x: Mean note of time series referenced by scale.
+    y: Array scaled based on Mean Note. 
+    z: Year Scale
+    
     '''
     major_disp = np.array([0,2,4,5,7,9,11,12])
     minor_disp = np.array([0,2,3,5,7,8,10,12])
@@ -153,100 +149,111 @@ def scale_of_year(arr, mode = 'major'):
     elif mode == str('minor'):
         mj = mod12(minor_disp + val_mean)
     year_notes = notes_names(np.int32(mj))
-    return ' '.join(year_notes)
-
-def mean_years_scaled(arr, mode = 'major')
-    #para que possa pegar as médias de cada ano,
-    #baseadas na escala adotada para a série temporal
-
-am = np.double(a['PAM'])
-at = np.double(b['PAT'])
-
-#lin_interp(am)
-#lin_interp(at)
+    return val_mean, val, ' '.join(year_notes)
 
 
+def chord_scaled(arr):
+    '''
+    INPUT
+    arr: Pixel time series
+    '''
+    am_x, am_y, am_z = scale_of_year(arr, mode='major')
+    scale = NoteSeq(am_z)
+    am_y_yearly = am_y.reshape((-1, 12))
+    arr_scaled = np.int32(np.floor([np.nansum(row)/len(row) for row in am_y_yearly]))
+    mean_years_fig = NoteSeq(' '.join(notes_names(arr_scaled)))
+    chords = []
+    rest_chords = []
+    for i, j in enumerate(mean_years_fig):
+        try:
+            chords.append(NoteSeq(j.harmonize(scale)))
+        except ValueError:
+            new_scale = set_scale(am_x, am_y_yearly[i])
+            import pdb;pdb.set_trace()
+            chords.append(NoteSeq(j.harmonize(new_scale)))
 
-am_notes = note_number(am)
-am_fig = notes_names_nan(np.int32(am_notes))
-print am_fig
+    for qq in chords:
+        rest_chords.append(NoteSeq([note.stretch_dur(12) for note in qq]))
+        #for i in range(12):
+        #    rest_chords.append(NoteSeq('R'))
 
-# get a beginning chord for each year of Temporal Series
-mean_years = [np.nansum(row)/len(row) for row in am_notes.reshape((-1,12))]
-y_mean = np.nansum(am)/len(am)
-val = set_scale(y_mean, am, mode = 'major')
-mean_years_val = [np.nansum(row)/len(row) for row in val.reshape((-1,12))]
-serie_mean = np.nansum(val)/len(val)
-mean_year_fig = note_name(np.int32(serie_mean))
-note_mean_year = np.int32(set_scale(serie_mean, am, mode = 'major'))
-fig_mean_year = notes_names_nan(np.int32(note_mean_year))
-year_scale = scale_of_year(am, mode = 'major')
-
-chords = []
-for i in mean_years_val:
-    note_symbol = Note(np.int32(i))
-    y_scale = NoteSeq(year_scale)
-    a = note_symbol.harmonize(y_scale)
-    print a
-    #chords.append(a)
-    # tem alguma coisa errada com a escala e as notas médias da escala.
-    # os mean_year_val ficam com notas fora da escala do ano.
-    # talvez pela quantidade de np.int32 que vai reduzindo o numero.
-    #Revisar isso.
-    # nesse loop, tá gerando o acorde somente para os dois primeiros anos
-    ##notes_names(np.int32(note_mean_year)) #para ter as figuras das notas
+    return chords, rest_chords
 
 
-# Transform it to a MIDI file.
-am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
-                            # e coisas sobre a escala, antes de dar o join
-am_musiq_midi = NoteSeq(am_musiq)
-midi = Midi(1, tempo=120)
-midi.seq_notes(am_musiq_midi,track=0)
-midi.seq_notes(retrograde(am_musiq_midi),track=0)
-midi.write("am_sound_nan_retrograde.mid")
+def get_music(am, name='am'):
+    ######### Get Music  ##########
+    xx, yy = chord_scaled(am.copy())
 
-# Music with "Rests" on NaN's
-am_fig_nan = notes_names_nan(np.int32(am_notes))
-am_musiq = ' '.join(am_fig_nan) # aqui ainda tem que colocar (tempos das notas)
-                            # e coisas sobre a escala, antes de dar o join
-am_musiq_midi = NoteSeq(am_musiq)
-midi = Midi(1, tempo=150)
-midi.seq_notes(am_musiq_midi,track=0)
-midi.write("am_sound_nan.mid")
+    #lin_interp(am)
 
-# Music Major scaled
-am_scaled = set_scale(3, am, mode = 'major')
-am_scaled_fig = notes_names_nan(np.int32(am_scaled))
+    am_notes = note_number(am.copy())
+    am_fig = notes_names_nan(np.int32(am_notes))
 
-am_scaled_musiq = ' '.join(am_scaled_fig)
-am_scaled_musiq_midi = NoteSeq(am_scaled_musiq)
-midi = Midi(1, tempo = 120)
-midi.seq_notes(am_scaled_musiq_midi, track=0)
-midi.write("am_scaled_major.mid")
+    # get a beginning chord for each year of Temporal Series
+    #am_x, am_y, am_z = scale_of_year(am.copy(), mode='major')
+    #am_principal = NoteSeq(am_z)
+    #mean_years_scaled = np.int32([np.nansum(row)/len(row) for row in am_y.reshape((-1,12))])
+    #mean_years_fig = NoteSeq(' '.join(notes_names(mean_years_scaled)))
 
-#Music Minor scaled
-am_scaled = set_scale(3, am, mode = 'minor')
-am_scaled_fig = notes_names_nan(np.int32(am_scaled))
+    # Transform it to a MIDI file with chords.
+    am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
+                                # e coisas sobre a escala, antes de dar o join
+    am_musiq_midi = NoteSeq(am_musiq)
+    midi = Midi(1, tempo=200)
+    midi.seq_notes(am_musiq_midi,track=0)
+    midi.seq_chords(yy,track=0)
+    midi.write("%s_cbo_select_music.mid" % name)
+'''
+    # Transform it to a MIDI file.
+    am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
+                                # e coisas sobre a escala, antes de dar o join
+    am_musiq_midi = NoteSeq(am_musiq)
+    midi = Midi(1, tempo=120)
+    midi.seq_notes(am_musiq_midi,track=0)
+    midi.seq_notes(retrograde(am_musiq_midi),track=0)
+    midi.write("%s_sound_nan_retrograde.mid" % name)
 
-am_scaled_musiq = ' '.join(am_scaled_fig)
-am_scaled_musiq_midi = NoteSeq(am_scaled_musiq)
-midi = Midi(1, tempo = 120)
-midi.seq_notes(am_scaled_musiq_midi, track=0)
-midi.write("am_scaled_minor.mid")
+    # Music with "Rests" on NaN's
+    am_fig_nan = notes_names_nan(np.int32(am_notes))
+    am_musiq = ' '.join(am_fig_nan) # aqui ainda tem que colocar (tempos das notas)
+                                # e coisas sobre a escala, antes de dar o join
+    am_musiq_midi = NoteSeq(am_musiq)
+    midi = Midi(1, tempo=150)
+    midi.seq_notes(am_musiq_midi,track=0)
+    midi.write("%s_sound_nan.mid" % name)
+
+    # Music Major scaled
+    am_scaled = set_scale(3, am, mode = 'major')
+    am_scaled_fig = notes_names_nan(np.int32(am_scaled))
+
+    am_scaled_musiq = ' '.join(am_scaled_fig)
+    am_scaled_musiq_midi = NoteSeq(am_scaled_musiq)
+    midi = Midi(1, tempo = 120)
+    midi.seq_notes(am_scaled_musiq_midi, track=0)
+    midi.write("%s_scaled_major.mid" % name)
+
+    #Music Minor scaled
+    am_scaled = set_scale(3, am, mode = 'minor')
+    am_scaled_fig = notes_names_nan(np.int32(am_scaled))
+
+    am_scaled_musiq = ' '.join(am_scaled_fig)
+    am_scaled_musiq_midi = NoteSeq(am_scaled_musiq)
+    midi = Midi(1, tempo = 120)
+    midi.seq_notes(am_scaled_musiq_midi, track=0)
+    midi.write("%s_scaled_minor.mid" % name)
+'''
 
 
 
 #    Através das análises de frequência com Fourier, determinar: 
-#        O tom pode ser em função da nota proveniente do valor médio de
+#        O tom da música é proveniente do valor médio de
 #        toda a série temporal (C, C#, D, D#, E, F, F#, G, G#, A, A#, B).
-#        Qual a escala a ser utilizada. Podemos escolher algumas.
+#
+#   ?? Qual a escala a ser utilizada. Podemos escolher algumas.
 #        (maior(Jõnico), menor(eólica), dórica, frígica, lídica, \
 #         mixolídica, lócrica, pentatônica-Maior, pentatonica-Menor, Blues\
 #         Mais outras escalas exóticas para fecharmos 12 escalas) # o que acham?
 #         http://www.jazzguitar.be/exotic_guitar_scales.html
 #         http://www.lotusmusic.com/lm_exoticscales.html 
-#    Precisa ser definido a variação de duração de cada nota
-#        Talvez em função da frequência determinante a cada ano da série.
-#        Mais ideias?
+#   ??  Cálculo das wavelets para inferência do acompanhamento (clave de Fá)
 

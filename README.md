@@ -1,4 +1,4 @@
-OceanColorSound
-===============
+OceanSound
+==========
 
-Get the music from oceancolor images, trough MODIS satellite
+Get the music from oceancolor images, through MODIS satellite
