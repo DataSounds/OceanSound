@@ -9,16 +9,19 @@ import numpy as np
 from pyknon.simplemusic import *
 from pyknon.genmidi import *
 
-# interp
 def lin_interp(self):
     """
-    Substitui os valores de NAN, interpolando.
-    Entrada:
-        - self: 1d numpy array com NAN's
-    Saida:
-        - nans: (índices dos NANs)
-        - index: (x), uma função sobre os índdices, para converter
-          logical indices de NANs para valores dos índices.
+    Interp values discarding NaN.
+    
+    Parameter
+    ------------
+    self: 1d numpy array with NaN's
+    
+    Returns
+    -----------
+    nans: (índex of NANs)
+    index: (x), a function over the index, converting
+          logical indices of NaNs to values of indices.
     """
     nans, x = np.isnan(self), lambda z: z.nonzero()[0]
     self[nans] = np.interp(x(nans), x(~nans), self[~nans])
@@ -114,6 +117,12 @@ def set_scale(note, arr, mode = 'major'):
 
 
 def note_name_nan(number):
+    '''
+    Transform a number to a note string, including
+    np.nan as musical rests.
+    This function is based on the acronym of "pyknon" function
+    without NaN.
+    '''
     notes = "C C# D D# E F F# G G# A A# B".split()
     rest = "R"
     if np.isnan(number):
@@ -125,15 +134,21 @@ def note_name_nan(number):
     return name
 
 def notes_names_nan(notes):
+    '''
+    Transform an array of multiple numeric values to note
+    strings, considering the function called inside (note_name_nan)
+    '''
     return [note_name_nan(x) for x in notes]
 
 def scale_of_year(arr, mode = 'major'):
     '''
-    INPUT:
+    Parameters
+    ----------------
     arr: is an array
     mode: may be a 'major' or 'minor'
     
-    RETURN
+    Return
+    ----------------
     x: Mean note of time series referenced by scale.
     y: Array scaled based on Mean Note. 
     z: Year Scale
@@ -141,9 +156,17 @@ def scale_of_year(arr, mode = 'major'):
     '''
     major_disp = np.array([0,2,4,5,7,9,11,12])
     minor_disp = np.array([0,2,3,5,7,8,10,12])
-    arr_mean = np.nansum(arr)/len(arr)
-    val = set_scale(arr_mean, arr, mode)
-    val_mean = np.nansum(val)/len(val)
+    if type(arr) is not np.ndarray:
+        raise RuntimeError('array, must be a numpy.ndarray!')
+    else:
+        if len(arr) == 1:
+            val = arr
+            val_mean = set_scale(arr, arr, mode)
+        else:
+            arr_mean = np.nansum(arr)/len(arr)
+            val = set_scale(arr_mean, arr, mode)
+            val_mean = np.nansum(val)/len(val)
+    
     if mode == str('major'):
         mj = mod12(major_disp + val_mean)
     elif mode == str('minor'):
@@ -154,28 +177,41 @@ def scale_of_year(arr, mode = 'major'):
 
 def chord_scaled(arr):
     '''
-    INPUT
+    Create chords based on the mean values of each anual time series.
+    Based on the scale of the year and harmonized trough pyknon module.
+    
+    Parameters
+    -------------
     arr: Pixel time series
+    
+    Returns
+    -------------
+    chords: a list of chords
+    rest_chords: a list of NoteSeq chords, including rests.
     '''
     am_x, am_y, am_z = scale_of_year(arr, mode='major')
     scale = NoteSeq(am_z)
-    am_y_yearly = am_y.reshape((-1, 12))
-    arr_scaled = np.int32(np.floor([np.nansum(row)/len(row) for row in am_y_yearly]))
+    scale_numbers = [name_to_number(i) for i in am_z.split(' ')]
+    arr_scaled = np.int32([np.nansum(row)/len(row) for row in 
+                                                 am_y.reshape((-1,12))])
     mean_years_fig = NoteSeq(' '.join(notes_names(arr_scaled)))
     chords = []
     rest_chords = []
-    for i, j in enumerate(mean_years_fig):
-        try:
-            chords.append(NoteSeq(j.harmonize(scale)))
-        except ValueError:
-            new_scale = set_scale(am_x, am_y_yearly[i])
-            import pdb;pdb.set_trace()
-            chords.append(NoteSeq(j.harmonize(new_scale)))
+    for i,j in enumerate(mean_years_fig):
+    ## check if note "j" is on the primary musical scale
+        if not j in scale:
+            # FIX THIS!!
+            #note = arr_scaled(i)
+            #aq_x, aq_y, aq_z = scale_of_year(np.ndarray(arr_scaled(i)), mode)
+            #scale = NoteSeq(aq_z)
+            scale = scale.transposition(1) 
+        chords.append(NoteSeq(j.harmonize(scale)))
+        scale = NoteSeq(am_z)
 
     for qq in chords:
-        rest_chords.append(NoteSeq([note.stretch_dur(12) for note in qq]))
-        #for i in range(12):
-        #    rest_chords.append(NoteSeq('R'))
+        rest_chords.append(qq)
+        for i in range(12):
+            rest_chords.append(NoteSeq('R'))
 
     return chords, rest_chords
 
@@ -184,20 +220,12 @@ def get_music(am, name='am'):
     ######### Get Music  ##########
     xx, yy = chord_scaled(am.copy())
 
-    #lin_interp(am)
-
     am_notes = note_number(am.copy())
     am_fig = notes_names_nan(np.int32(am_notes))
 
-    # get a beginning chord for each year of Temporal Series
-    #am_x, am_y, am_z = scale_of_year(am.copy(), mode='major')
-    #am_principal = NoteSeq(am_z)
-    #mean_years_scaled = np.int32([np.nansum(row)/len(row) for row in am_y.reshape((-1,12))])
-    #mean_years_fig = NoteSeq(' '.join(notes_names(mean_years_scaled)))
-
     # Transform it to a MIDI file with chords.
-    am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
-                                # e coisas sobre a escala, antes de dar o join
+    am_musiq = ' '.join(am_fig) 
+
     am_musiq_midi = NoteSeq(am_musiq)
     midi = Midi(1, tempo=200)
     midi.seq_notes(am_musiq_midi,track=0)
@@ -205,8 +233,8 @@ def get_music(am, name='am'):
     midi.write("%s_cbo_select_music.mid" % name)
 '''
     # Transform it to a MIDI file.
-    am_musiq = ' '.join(am_fig) # aqui ainda tem que colocar (tempos das notas)
-                                # e coisas sobre a escala, antes de dar o join
+    am_musiq = ' '.join(am_fig) 
+                                
     am_musiq_midi = NoteSeq(am_musiq)
     midi = Midi(1, tempo=120)
     midi.seq_notes(am_musiq_midi,track=0)
@@ -215,8 +243,8 @@ def get_music(am, name='am'):
 
     # Music with "Rests" on NaN's
     am_fig_nan = notes_names_nan(np.int32(am_notes))
-    am_musiq = ' '.join(am_fig_nan) # aqui ainda tem que colocar (tempos das notas)
-                                # e coisas sobre a escala, antes de dar o join
+    am_musiq = ' '.join(am_fig_nan) 
+                                
     am_musiq_midi = NoteSeq(am_musiq)
     midi = Midi(1, tempo=150)
     midi.seq_notes(am_musiq_midi,track=0)
@@ -242,18 +270,4 @@ def get_music(am, name='am'):
     midi.seq_notes(am_scaled_musiq_midi, track=0)
     midi.write("%s_scaled_minor.mid" % name)
 '''
-
-
-
-#    Através das análises de frequência com Fourier, determinar: 
-#        O tom da música é proveniente do valor médio de
-#        toda a série temporal (C, C#, D, D#, E, F, F#, G, G#, A, A#, B).
-#
-#   ?? Qual a escala a ser utilizada. Podemos escolher algumas.
-#        (maior(Jõnico), menor(eólica), dórica, frígica, lídica, \
-#         mixolídica, lócrica, pentatônica-Maior, pentatonica-Menor, Blues\
-#         Mais outras escalas exóticas para fecharmos 12 escalas) # o que acham?
-#         http://www.jazzguitar.be/exotic_guitar_scales.html
-#         http://www.lotusmusic.com/lm_exoticscales.html 
-#   ??  Cálculo das wavelets para inferência do acompanhamento (clave de Fá)
 
