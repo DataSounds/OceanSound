@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from os.path import expanduser, join
+from os.path import join, exists
+from os import getcwd
+from sys import argv
 import subprocess
 import time
 
@@ -59,12 +61,14 @@ def pos_command_line():
     return LATLIMS, LONLIMS
 
 def set_indir_outdir():
-    if os.path.exists((os.path.join(os.getcwd()) + '/data/')):
-        indir = os.path.join(os.getcwd(), 'data/')
+    if argv[1]:
+        indir = argv[1]
+    elif exists((join(getcwd()) + '/data/')):
+        indir = join(getcwd(), 'data/')
     else:
         EOFError
         indir = raw_input('digite aqui o diretorio do seus dados > ')
-    outdir = os.getcwd()
+    outdir = getcwd()
     return indir, outdir
 
 #color, bg_img, img = calibrate()
