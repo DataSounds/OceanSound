@@ -14,7 +14,7 @@ pygame.mixer.init()
 from OceanSound.extract import extract_series
 from OceanSound.sounds import get_music
 from OceanSound.capture import find_corners, find_boat, get_image, boat_lat_lon, calibrate
-from OceanSound.visuals import plot_series
+from OceanSound.visuals import plot_series, plot_animation
 
 def pos_dummy():
     ## setting limits to cut
@@ -58,7 +58,7 @@ def pos_command_line():
     LONLIMS = np.array([float(lon)])
     return LATLIMS, LONLIMS
 
-indir = expanduser('~/temp/arnaldo/MODIS/')
+indir = expanduser('~/Desktop/MODIS_Chla_9km/')
 #indir = expanduser('~/Dropbox/MODIS_Chla_9km/')
 #outdir = expanduser('~/Dropbox/python_stuff/CBO_music/')
 outdir = expanduser('~/temp/arnaldo/')
@@ -84,7 +84,7 @@ while RUNNING:
         dataAM = extract_series(LATLIMS_AM, LONLIMS_AM, indir, outdir)
         #np.savez(join(outdir, 'multiPixAM'), **dataAM)
 
-        #a = np.load(join(outdir, 'multiPixAM.npz'))
+        #dataAM = np.load(join(outdir, 'multiPixAM.npz'))
 
         data_am = np.double(dataAM['Series'])
         if all(np.isnan(a) for a in data_am):
@@ -97,16 +97,18 @@ while RUNNING:
         else:
             am = get_music(data_am, name='am')
 
+            music = pygame.mixer.Sound('am_cbo_select_music.mid')
             pygame.mixer.music.load('am_cbo_select_music.mid')
             pygame.mixer.music.play()
-            while pygame.mixer.music.get_busy():
-                if pygame.mixer.music.get_pos() % 1000 > 950:
-                    plot_series(data_am,
+            plot_animation(data_am,
                         (u'Música do ponto Lat = %.2f Lon = %.2f'
                             % (dataAM['Lat'], dataAM['Lon'])),
                         'serie.png',
-                        tstep=pygame.mixer.music.get_pos())
-                #time.sleep(.5)
+                        t_max=music.get_length())
+
+        #    while pygame.mixer.music.get_busy():
+        #        pass
+
     command = raw_input('OceanSound> ')
     if command == 'q':
         RUNNING = False
