@@ -58,10 +58,14 @@ def pos_command_line():
     LONLIMS = np.array([float(lon)])
     return LATLIMS, LONLIMS
 
-indir = expanduser('~/temp/arnaldo/MODIS/')
-#indir = expanduser('~/Dropbox/MODIS_Chla_9km/')
-#outdir = expanduser('~/Dropbox/python_stuff/CBO_music/')
-outdir = expanduser('~/temp/arnaldo/')
+def set_indir_outdir():
+    if os.path.exists((os.path.join(os.getcwd()) + '/data/')):
+        indir = os.path.join(os.getcwd(), 'data/')
+    else:
+        EOFError
+        indir = raw_input('digite aqui o diretorio do seus dados > ')
+    outdir = os.getcwd()
+    return indir, outdir
 
 #color, bg_img, img = calibrate()
 #import pdb; pdb.set_trace()
@@ -69,6 +73,7 @@ RUNNING = True
 while RUNNING:
     #LATLIMS_AM, LONLIMS_AM = pos_dummy()
     #LATLIMS_AM, LONLIMS_AM = pos_camera(color=color)
+    indir, outdir = set_indir_outdir()
     LATLIMS_AM, LONLIMS_AM = pos_command_line()
 #    do_calc(LATLIMS_AM, LONLIMS_AM)
 
