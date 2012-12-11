@@ -36,7 +36,7 @@ def plot_animation(series, title, output, t_max):
     INTERVAL = 300
     frames = int(t_max / float(INTERVAL))
 
-    fig = plt.figure(0)#figsize=(12,5), dpi=300)
+    fig = plt.figure(1)#figsize=(12,5), dpi=300)
     fig.clf()
 
     fig.suptitle(title)

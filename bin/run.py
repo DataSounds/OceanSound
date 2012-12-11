@@ -36,11 +36,10 @@ def pos_camera(color):
     return np.array([lat]), np.array([lon])
 
 def basemap_ui():
-
     fig = plt.figure(0, figsize=(20, 10))
     globe = Basemap()
     globe.bluemarble()
-    parallels = np.arange(-81,81,10.)
+    parallels = np.arange(-80,80,10.)
     # labels = [left,right,top,bottom]
     globe.drawparallels(parallels,labels=[False,True,True,False])
     meridians = np.arange(10.,351.,20.)
@@ -71,16 +70,7 @@ def set_indir_outdir():
     outdir = getcwd()
     return indir, outdir
 
-#color, bg_img, img = calibrate()
-#import pdb; pdb.set_trace()
-RUNNING = True
-while RUNNING:
-    #LATLIMS_AM, LONLIMS_AM = pos_dummy()
-    #LATLIMS_AM, LONLIMS_AM = pos_camera(color=color)
-    indir, outdir = set_indir_outdir()
-    LATLIMS_AM, LONLIMS_AM = pos_command_line()
-#    do_calc(LATLIMS_AM, LONLIMS_AM)
-
+def do_calc(LATLIMS_AM, LONLINMS_AM, indir, outdir):
     land_checker = Basemap()
     if land_checker.is_land(LATLIMS_AM, LONLIMS_AM):
         print 'SOS! Array indefinido. Ponto em terra!'
@@ -118,6 +108,22 @@ while RUNNING:
         #    while pygame.mixer.music.get_busy():
         #        pass
 
-    command = raw_input('OceanSound> ')
-    if command == 'q':
-        RUNNING = False
+if __name__ == "__main__":
+    indir = expanduser('~/Desktop/MODIS_Chla_9km/')
+    #indir = expanduser('~/Dropbox/MODIS_Chla_9km/')
+    #outdir = expanduser('~/Dropbox/python_stuff/CBO_music/')
+    outdir = expanduser('~/temp/arnaldo/')
+
+    #color, bg_img, img = calibrate()
+    RUNNING = True
+    while RUNNING:
+        indir, outdir = set_indir_outdir()
+        #LATLIMS_AM, LONLIMS_AM = pos_dummy()
+        #LATLIMS_AM, LONLIMS_AM = pos_camera(color=color)
+        LATLIMS_AM, LONLIMS_AM = pos_command_line()
+
+        do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir)
+
+        command = raw_input('OceanSound> ')
+        if command == 'q':
+            RUNNING = False
