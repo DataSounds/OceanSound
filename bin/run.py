@@ -109,15 +109,11 @@ def do_calc(LATLIMS_AM, LONLINMS_AM, indir, outdir):
         #        pass
 
 if __name__ == "__main__":
-    indir = expanduser('~/Desktop/MODIS_Chla_9km/')
-    #indir = expanduser('~/Dropbox/MODIS_Chla_9km/')
-    #outdir = expanduser('~/Dropbox/python_stuff/CBO_music/')
-    outdir = expanduser('~/temp/arnaldo/')
+    indir, outdir = set_indir_outdir()
 
     #color, bg_img, img = calibrate()
     RUNNING = True
     while RUNNING:
-        indir, outdir = set_indir_outdir()
         #LATLIMS_AM, LONLIMS_AM = pos_dummy()
         #LATLIMS_AM, LONLIMS_AM = pos_camera(color=color)
         LATLIMS_AM, LONLIMS_AM = pos_command_line()
