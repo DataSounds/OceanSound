@@ -26,6 +26,11 @@ def pos_camera(color):
     return np.array([lat]), np.array([lon])
 
 def basemap_ui():
+
+    def tellme(s):
+        plt.title(s,fontsize=16)
+        plt.draw()
+
     fig = plt.figure(0, figsize=(20, 10))
     globe = Basemap()
     globe.bluemarble()
@@ -34,8 +39,17 @@ def basemap_ui():
     globe.drawparallels(parallels,labels=[False,True,True,False])
     meridians = np.arange(10.,351.,20.)
     globe.drawmeridians(meridians,labels=[True,False,False,True])
-    point = plt.ginput(1)
-    return np.array((point[0][0],)), np.array((point[0][1],))
+
+    points = []
+    while len(points) == 0:
+        tellme('Selecione um ponto com o mouse')
+        points = plt.ginput(1, timeout=-1)
+        if len(points) != 1:
+            time.sleep(1)
+
+    point = points[0]
+    plt.close('all')
+    return np.array((point[0],)), np.array((point[1],))
 
 def pos_command_line():
     coords = raw_input('OceanSound> Entre com a latitude e a longitude: ')
@@ -111,6 +125,7 @@ if __name__ == "__main__":
 
         do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir)
 
-        command = raw_input('OceanSound> ')
-        if command == 'q':
-            RUNNING = False
+        if args.mode in ('cmd', 'cv'):
+            command = raw_input('OceanSound> ')
+            if command == 'q':
+                RUNNING = False
