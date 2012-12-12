@@ -5,9 +5,10 @@ from os import getcwd
 from sys import argv
 import subprocess
 import time
+from argparse import ArgumentParser
 
 import numpy as np
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import pygame.mixer
 #pygame.init()
@@ -15,18 +16,7 @@ pygame.mixer.init()
 
 from OceanSound.extract import extract_series
 from OceanSound.sounds import get_music
-from OceanSound.capture import find_corners, find_boat, get_image, boat_lat_lon, calibrate
 from OceanSound.visuals import plot_series, plot_animation
-
-def pos_dummy():
-    ## setting limits to cut
-    LATLIMS_AM = np.array([0]) #foz do rio amazonas
-    LONLIMS_AM = np.array([-45])
-
-    #LATLIMS_AT = np.array([-23]) #Oc. Atlantico
-    #LONLIMS_AT = np.array([-30])
-
-    return LATLIMS_AM, LONLIMS_AM
 
 def pos_camera(color):
     b = get_image()
@@ -44,13 +34,8 @@ def basemap_ui():
     globe.drawparallels(parallels,labels=[False,True,True,False])
     meridians = np.arange(10.,351.,20.)
     globe.drawmeridians(meridians,labels=[True,False,False,True])
-
-    def on_pick(event):
-        print event.xdata, event.ydata
-        do_calc(np.array([event.xdata]), np.array([event.ydata]))
-
-    fig.canvas.mpl_connect('button_release_event', on_pick)
-    plt.show()
+    point = plt.ginput(1)
+    return np.array((point[0][0],)), np.array((point[0][1],))
 
 def pos_command_line():
     coords = raw_input('OceanSound> Entre com a latitude e a longitude: ')
@@ -59,18 +44,7 @@ def pos_command_line():
     LONLIMS = np.array([float(lon)])
     return LATLIMS, LONLIMS
 
-def set_indir_outdir():
-    if argv[1]:
-        indir = argv[1]
-    elif exists((join(getcwd()) + '/data/')):
-        indir = join(getcwd(), 'data/')
-    else:
-        EOFError
-        indir = raw_input('digite aqui o diretorio do seus dados > ')
-    outdir = getcwd()
-    return indir, outdir
-
-def do_calc(LATLIMS_AM, LONLINMS_AM, indir, outdir):
+def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
     land_checker = Basemap()
     if land_checker.is_land(LATLIMS_AM, LONLIMS_AM):
         print 'SOS! Array indefinido. Ponto em terra!'
@@ -109,14 +83,31 @@ def do_calc(LATLIMS_AM, LONLINMS_AM, indir, outdir):
         #        pass
 
 if __name__ == "__main__":
-    indir, outdir = set_indir_outdir()
+    parser = ArgumentParser()
 
-    #color, bg_img, img = calibrate()
+    parser.add_argument('--mode', choices=('basemap', 'cmd', 'cv'),
+                        default='cmd', help='Point selection mode')
+    parser.add_argument('--indir', default=join(getcwd(), 'data'),
+                        help='input dir with MODIS data')
+    parser.add_argument('--outdir', default=getcwd(),
+                        help='output dir for MIDI and plots')
+    args = parser.parse_args()
+
+    indir, outdir = args.indir, args.outdir
+
+    if args.mode == 'cmd':
+        get_pos = pos_command_line
+    elif args.mode == 'cv':
+        from OceanSound.capture import find_corners, find_boat, get_image
+        from OceanSound.capture import calibrate, boat_lat_lon
+        color, bg_img, img = calibrate()
+        get_pos = partial(pos_camera, color=color)
+    elif args.mode == 'basemap':
+        get_pos = basemap_ui
+
     RUNNING = True
     while RUNNING:
-        #LATLIMS_AM, LONLIMS_AM = pos_dummy()
-        #LATLIMS_AM, LONLIMS_AM = pos_camera(color=color)
-        LATLIMS_AM, LONLIMS_AM = pos_command_line()
+        LATLIMS_AM, LONLIMS_AM = get_pos()
 
         do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir)
 

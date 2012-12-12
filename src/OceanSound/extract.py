@@ -15,14 +15,14 @@ e-mail =  arnaldorusso@gmail.com
 from pyhdf.SD import *
 import numpy as np
 import glob
+import os
 #import matplotlib.pyplot as plt
 #from mpl_toolkits.basemap import Basemap
 #import scipy.io
 
 
 def extract_series(LATLIMS, LONLIMS, indir, outdir):
-
-    filelist = glob.glob(indir+'A*')
+    filelist = glob.glob(os.path.join(indir, 'A*'))
     filelist.sort()
     nfiles = len(filelist)
     files = []
