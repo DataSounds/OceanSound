@@ -31,7 +31,7 @@ def basemap_ui():
         plt.title(s,fontsize=16)
         plt.draw()
 
-    fig = plt.figure(0, figsize=(20, 10))
+    fig = plt.figure(0, figsize=(10, 5))
     globe = Basemap()
     globe.bluemarble()
     parallels = np.arange(-80,80,10.)
