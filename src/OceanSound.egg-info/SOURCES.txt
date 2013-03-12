@@ -1,0 +1,12 @@
+setup.py
+src/OceanSound/__init__.py
+src/OceanSound/capture.py
+src/OceanSound/extract.py
+src/OceanSound/sounds.py
+src/OceanSound/visuals.py
+src/OceanSound.egg-info/PKG-INFO
+src/OceanSound.egg-info/SOURCES.txt
+src/OceanSound.egg-info/dependency_links.txt
+src/OceanSound.egg-info/not-zip-safe
+src/OceanSound.egg-info/requires.txt
+src/OceanSound.egg-info/top_level.txt

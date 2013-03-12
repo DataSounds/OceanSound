@@ -1,0 +1,3 @@
+pyknon
+pyhdf
+numpy

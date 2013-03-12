@@ -1,0 +1,25 @@
+Metadata-Version: 1.1
+Name: OceanSound
+Version: 0.1
+Summary: Get the music from oceancolor images, through MODIS satellite
+Home-page: https://github.com/arnaldorusso/OceanSound
+Author: Arnaldo Russo , Luiz Irber
+Author-email: arnaldorusso@gmail.com, luiz.irber@gmail.com
+License: PSF
+Download-URL: https://github.com/arnaldorusso/OceanSound/archive/master.tar.gz
+Description: OceanSound
+        ==========
+        
+        Get the music from oceancolor images, through MODIS satellite
+        
+        
+        
+Keywords: music oceanography data
+Platform: any
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Python Software Foundation License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 2
+Classifier: Topic :: Scientific/Engineering
