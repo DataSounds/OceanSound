@@ -6,7 +6,7 @@ README = open(os.path.join(here, 'README.md')).read()
 NEWS = open(os.path.join(here, 'NEWS.txt')).read()
 
 
-version = '0.1'
+version = '0.1.0'
 
 install_requires = [
     'pyknon',
@@ -31,7 +31,6 @@ setup(name='OceanSound',
     author='Arnaldo Russo , Luiz Irber',
     author_email='arnaldorusso@gmail.com, luiz.irber@gmail.com',
     url='https://github.com/arnaldorusso/OceanSound',
-    download_url='https://github.com/arnaldorusso/OceanSound/archive/master.tar.gz',
     license='PSF',
     packages=find_packages('src'),
     package_dir = {'': 'src'},
