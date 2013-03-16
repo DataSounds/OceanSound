@@ -9,8 +9,8 @@ from StringIO import StringIO
 from bisect import bisect
 
 import numpy as np
-from pyknon.simplemusic import mod12, notes_names, NoteSeq, name_to_number
-from pyknon.genmidi import Midi
+from pyknon.simplemusic import mod12, notes_names, name_to_number
+from pyknon.genmidi import Midi, NoteSeq
 
 
 def lin_interp(self):
