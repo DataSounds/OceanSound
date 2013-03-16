@@ -33,7 +33,7 @@ def plot_series(series, title, output):
 
 
 def plot_animation(series, title, output, t_max):
-    INTERVAL = 300
+    INTERVAL = 200
     frames = int(t_max / float(INTERVAL))
 
     fig = plt.figure(1)#figsize=(12,5), dpi=300)
@@ -49,14 +49,16 @@ def plot_animation(series, title, output, t_max):
     marker = plt.axvline(0, linestyle='--')
 
     x = np.arange(2002,2013,1)
-    plt.xticks(np.arange(0,121,12),x)
+    #plt.xticks(np.arange(0,121,12),x)
+    plt.gca().xaxis.set_visible(False)
 
     # Colors
     fig.add_subplot(212)
     series_stacked = np.tile(series, (20,1))
     plt.imshow(series_stacked)
     plt.gca().yaxis.set_visible(False)
-    plt.xticks(np.arange(0,121,12),x)
+    plt.gca().xaxis.set_visible(False)
+    #plt.xticks(np.arange(0,121,12),x)
     #plt.xlabel('Ano')
     #plt.ylabel(u'Concentração de Clorofila-a')
     #fig.savefig(output)
@@ -69,9 +71,11 @@ def plot_animation(series, title, output, t_max):
 
     def animate(i):
         print i
-        marker.set_data([i], marker.get_ydata())
+        marker.set_data([i * (120./frames)], marker.get_ydata())
         return marker,
 
+    print frames, INTERVAL, t_max
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                frames=frames, interval=INTERVAL, blit=False)
-    plt.show()
+    #plt.show()
+    return anim

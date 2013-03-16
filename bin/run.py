@@ -68,7 +68,7 @@ def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
             #plot animado?
             time.sleep(1)
     else:
-        dataAM = extract_series(LATLIMS_AM, LONLIMS_AM, indir, outdir)
+        dataAM = extract_series(LATLIMS_AM, LONLIMS_AM, indir)
         #np.savez(join(outdir, 'multiPixAM'), **dataAM)
 
         #dataAM = np.load(join(outdir, 'multiPixAM.npz'))
@@ -87,14 +87,15 @@ def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
             music = pygame.mixer.Sound('am_cbo_select_music.mid')
             pygame.mixer.music.load('am_cbo_select_music.mid')
             pygame.mixer.music.play()
-            plot_animation(data_am,
+            anim = plot_animation(data_am,
                         (u'Música do ponto Lat = %.2f Lon = %.2f'
                             % (dataAM['Lat'], dataAM['Lon'])),
                         'serie.png',
-                        t_max=music.get_length())
+                        t_max=36000)#music.get_length())
 
-        #    while pygame.mixer.music.get_busy():
-        #        pass
+#            while pygame.mixer.music.get_busy():
+#                pass
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
