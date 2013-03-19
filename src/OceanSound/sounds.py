@@ -39,7 +39,7 @@ def classe_notas(arr):
 
 def note_number(arr):
     x_notes = classe_notas(arr)
-    mapping = np.asarray([bisect(x_notes, a) for a in arr]) - 1
+    mapping = np.asarray([bisect(x_notes, a) for a in arr], dtype='f8') - 1
     mapping[np.isnan(arr)] = np.nan
     return mapping
 
