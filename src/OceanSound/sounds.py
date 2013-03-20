@@ -141,7 +141,7 @@ def scale_of_year(arr, mode='major'):
     return val_mean, val, ' '.join(year_notes)
 
 
-def chord_scaled(arr):
+def chord_scaled(arr, period=12):
     '''
     Create chords based on the mean values of each anual time series.
     Based on the scale of the year and harmonized trough pyknon module.
@@ -149,6 +149,7 @@ def chord_scaled(arr):
     Parameters
     -------------
     arr: Pixel time series
+    period: how many timesteps to use for the average chord generation.
 
     Returns
     -------------
@@ -158,8 +159,14 @@ def chord_scaled(arr):
     am_x, am_y, am_z = scale_of_year(arr, mode='major')
     scale = NoteSeq(am_z)
     scale_numbers = [name_to_number(i) for i in am_z.split(' ')]
+
+    remainder = am_y.size % period
+    if remainder:
+        fill = period - remainder
+        am_y = np.append(am_y, np.zeros(fill) * np.nan)
+
     arr_scaled = np.int32([np.nansum(row) / len(row) for row in
-                           am_y.reshape((-1, 12))])
+                           am_y.reshape((-1, period))])
     mean_years_fig = NoteSeq(' '.join(notes_names(arr_scaled)))
     chords = []
     rest_chords = []
@@ -176,7 +183,7 @@ def chord_scaled(arr):
 
     for qq in chords:
         rest_chords.append(qq)
-        for i in range(12):
+        for i in range(period):
             rest_chords.append(NoteSeq('R'))
 
     return chords, rest_chords
