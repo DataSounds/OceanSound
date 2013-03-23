@@ -9,7 +9,7 @@ NEWS = open(os.path.join(here, 'NEWS.txt')).read()
 version = '0.1.0'
 
 install_requires = [
-    'pyknon',
+    'sebastian',
     'pyhdf',
     'numpy'
 ]
