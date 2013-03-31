@@ -7,7 +7,7 @@ from bisect import bisect
 import numpy as np
 
 from sebastian.lilypond.interp import parse
-from sebastian.midi.write_midi import SMF
+from sebastian.midi.write_midi import SMF, write
 
 
 def note_classes(arr, scale):
@@ -19,8 +19,14 @@ def note_classes(arr, scale):
 
 def note_number(arr, scale):
     x_notes = note_classes(arr, scale)
-    mapping = np.asarray([bisect(x_notes, a) for a in arr], dtype='f8') - 1
-    mapping[np.isnan(arr)] = np.nan
+    mapping = []
+    if len(arr.shape) >= 2:
+        for idx, value in np.ndenumerate(arr): 
+            mapping.append(np.array(bisect(x_notes, value),dtype='f8') - 1)
+    else:
+        mapping = np.asarray([bisect(x_notes, a) for a in arr], dtype='f8') - 1
+        mapping[np.isnan(arr)] = np.nan
+    mapping = np.reshape(mapping, arr.shape)
     return mapping
 
 
@@ -81,5 +87,6 @@ def get_music(series, period=12, key='C', mode='major', octaves=2):
 #    s = SMF([melody // harmony])
     s = SMF([melody])
     s.write(midi_out)
+    write('Oc.midi', [melody])
 
     return midi_out

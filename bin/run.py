@@ -82,10 +82,10 @@ def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
                 #plot animado?
                 time.sleep(1)
         else:
-            am = get_music(data_am, name='am')
+            am = get_music(data_am) #, name='am')
 
-            music = pygame.mixer.Sound('am_cbo_select_music.mid')
-            pygame.mixer.music.load('am_cbo_select_music.mid')
+            music = pygame.mixer.Sound('Oc.midi')#'am_cbo_select_music.mid')
+            pygame.mixer.music.load('Oc.midi')#'am_cbo_select_music.mid')
             pygame.mixer.music.play()
             anim = plot_animation(data_am,
                         (u'Música do ponto Lat = %.2f Lon = %.2f'
