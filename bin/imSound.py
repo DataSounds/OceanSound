@@ -34,8 +34,6 @@ def play_music(x, y):
     pygame.mixer.music.load('Oc.midi')
     pygame.mixer.music.play()
 
-    sound.play(loops=-1)
-
 def main():
     def on_move(event):
         x,y = event.xdata, event.ydata
