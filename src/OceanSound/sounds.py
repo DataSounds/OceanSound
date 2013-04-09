@@ -7,7 +7,7 @@ from bisect import bisect
 import numpy as np
 
 from sebastian.lilypond.interp import parse
-from sebastian.midi.write_midi import SMF, write
+from sebastian.midi.write_midi import SMF
 
 
 def note_classes(arr, scale):
@@ -21,8 +21,8 @@ def note_number(arr, scale):
     x_notes = note_classes(arr, scale)
     mapping = []
     if len(arr.shape) >= 2:
-        for idx, value in np.ndenumerate(arr): 
-            mapping.append(np.array(bisect(x_notes, value),dtype='f8') - 1)
+        for idx, value in np.ndenumerate(arr):
+            mapping.append(np.array(bisect(x_notes, value), dtype='f8') - 1)
     else:
         mapping = np.asarray([bisect(x_notes, a) for a in arr], dtype='f8') - 1
         mapping[np.isnan(arr)] = np.nan
@@ -74,19 +74,23 @@ def chord_scaled(arr, scale, period=12):
 
 
 def get_music(series, period=12, key='C', mode='major', octaves=2):
-    scale = build_scale(key, mode, octaves)
-
-    notes = note_number(series, scale)
-    melody = parse(' '.join([note_name(x, scale) for x in notes]))
-
-    chords = chord_scaled(series, scale, period)
-    harmony = parse(chords)
-
-    # Transform it to a MIDI file with chords.
     midi_out = StringIO()
-#    s = SMF([melody // harmony])
-    s = SMF([melody])
-    s.write(midi_out)
-    write('Oc.midi', [melody])
+
+    if all(np.isnan(series)):
+        s = SMF([])
+        s.write(midi_out)
+    else:
+        scale = build_scale(key, mode, octaves)
+
+        notes = note_number(series, scale)
+        melody = parse(' '.join([note_name(x, scale) for x in notes]))
+
+        chords = chord_scaled(series, scale, period)
+        harmony = parse(chords)
+
+        # Transform it to a MIDI file with chords.
+#        s = SMF([melody // harmony])
+        s = SMF([melody])
+        s.write(midi_out)
 
     return midi_out

@@ -32,6 +32,8 @@ def extract_series(LATLIMS, LONLIMS, indir):
 
     names = []
     multi_pix = []
+    Lat = None
+    Lon = None
     for i in range(len(filelist)):
         A = SD(filelist[i])
         a = A.attributes()
