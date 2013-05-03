@@ -12,16 +12,14 @@ from sebastian.midi.write_midi import SMF
 def note_classes(arr, scale):
     a = np.nanmin(arr)
     b = np.nanmax(arr)
-    count, bins = np.histogram(arr, bins=len(scale), range=(a, b))
+    count, bins = np.histogram(arr, bins=len(scale) - 1, range=(a, b))
     return bins
 
 
 def note_number(arr, scale):
     x_notes = note_classes(arr, scale)
-    scale_size = len(scale)
     mapping = np.searchsorted(x_notes, arr, side='left').astype('f8')
     mapping[np.isnan(arr)] = np.nan
-    mapping[mapping >= scale_size] = scale_size - 1
     return mapping
 
 
