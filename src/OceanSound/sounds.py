@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from StringIO import StringIO
-from bisect import bisect
 
 import numpy as np
 
@@ -13,20 +12,16 @@ from sebastian.midi.write_midi import SMF
 def note_classes(arr, scale):
     a = np.nanmin(arr)
     b = np.nanmax(arr)
-    notes_class = np.arange(a, b, (b - a) / len(scale))
-    return notes_class
+    count, bins = np.histogram(arr, bins=len(scale), range=(a, b))
+    return bins
 
 
 def note_number(arr, scale):
     x_notes = note_classes(arr, scale)
-    mapping = []
-    if len(arr.shape) >= 2:
-        for idx, value in np.ndenumerate(arr):
-            mapping.append(np.array(bisect(x_notes, value), dtype='f8') - 1)
-    else:
-        mapping = np.asarray([bisect(x_notes, a) for a in arr], dtype='f8') - 1
-        mapping[np.isnan(arr)] = np.nan
-    mapping = np.reshape(mapping, arr.shape)
+    scale_size = len(scale)
+    mapping = np.searchsorted(x_notes, arr, side='left').astype('f8')
+    mapping[np.isnan(arr)] = np.nan
+    mapping[mapping >= scale_size] = scale_size - 1
     return mapping
 
 
