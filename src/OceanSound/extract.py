@@ -4,13 +4,9 @@
 '''
 subset_MODIS
 
-Programa para Fazer um subset teemporal de um pixel de imagens MODIS
-Dentro dos limites Lat e Long determinados.
+Makes a subset of a pixel time series from MODIS 
+Chlorophyll images.
 
-Baseado em subset_MODIS.py
-
-Author =  Arnaldo Russo
-e-mail =  arnaldorusso@gmail.com
 '''
 
 
