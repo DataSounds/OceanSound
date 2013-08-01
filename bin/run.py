@@ -14,8 +14,9 @@ import pygame.mixer
 #pygame.init()
 pygame.mixer.init()
 
+from DataSounds.sounds import get_music
+
 from OceanSound.extract import extract_series
-from OceanSound.sounds import get_music
 from OceanSound.visuals import plot_series, plot_animation
 
 def pos_camera(color):
