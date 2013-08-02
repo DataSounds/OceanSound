@@ -2,11 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-subset_MODIS
+Chooses package between pyhdf and gdal to deal with HDF4 files.
 
-Makes a subset of a pixel time series from MODIS 
-Chlorophyll images.
-
+This function will import extract_series to construct your Chlorophyll-a
+time series.
 '''
 
 try:
