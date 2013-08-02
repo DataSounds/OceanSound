@@ -27,4 +27,4 @@ OceanSound --indir dir/where/are/*.hdf --outdir dir/to/save/output.midi
 Our Project
 -----------
 OceanSound deals with Satellite MODIS chlorophyll, but if you are interested by extracting music from your data take a 
-look at [DataSounds](www.datasounds.org) and access the [code](https://github.com/DataSounds/DataSounds)!
+look at [DataSounds](http://www.datasounds.org) and access the [code](https://github.com/DataSounds/DataSounds)!
