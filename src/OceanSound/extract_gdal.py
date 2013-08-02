@@ -28,7 +28,7 @@ def extract_series(LATLIMS, LONLIMS, indir):
     filelist.sort()
     files = []
     for path in filelist:
-        files.append(path[len(indir):])  # remove path name
+        files.append(path[len(indir):])
 
     names = []
     multi_pix = []
