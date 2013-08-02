@@ -1,3 +1,5 @@
+[![Stories in Ready](https://badge.waffle.io/datasounds/oceansound.png)](http://waffle.io/datasounds/oceansound)
+
 OceanSound
 ==========
 
