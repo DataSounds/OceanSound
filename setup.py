@@ -6,12 +6,10 @@ README = open(os.path.join(here, 'README.md')).read()
 NEWS = open(os.path.join(here, 'NEWS.txt')).read()
 
 
-version = '0.1.2'
+version = '0.1.3'
 
 install_requires = [
-    'sebastian',
     'DataSounds',
-    'pyhdf',
     'numpy'
 ]
 
@@ -30,8 +28,8 @@ setup(name='OceanSound',
     ],
     keywords='music oceanography data',
     author='Arnaldo Russo , Luiz Irber',
-    author_email='arnaldorusso@gmail.com, luiz.irber@gmail.com',
-    url='https://github.com/arnaldorusso/OceanSound',
+    author_email='arnaldo@datasounds.org, luiz@datasounds.org',
+    url='https://github.com/DataSounds/OceanSound',
     license='PSF',
     packages=find_packages('src'),
     package_dir = {'': 'src'},
