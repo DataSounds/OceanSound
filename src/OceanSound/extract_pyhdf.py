@@ -6,7 +6,6 @@ subset_MODIS using pyhdf package.
 
 Makes a subset of a pixel time series from MODIS 
 Chlorophyll images.
-
 '''
 
 
