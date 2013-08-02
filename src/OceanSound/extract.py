@@ -9,7 +9,7 @@ time series.
 '''
 
 try:
-    from extract_pyhdf import extract_serie
+    from extract_pyhdf import extract_series
 except ImportError:
     try:
         from extract_gdal import extract_series
