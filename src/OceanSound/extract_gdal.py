@@ -2,15 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-subset_MODIS
+subset_MODIS using gdal package.
 
-Programa para Fazer um subset teemporal de um pixel de imagens MODIS
-Dentro dos limites Lat e Long determinados.
-
-Baseado em subset_MODIS.py
-
-Author =  Arnaldo Russo
-e-mail =  arnaldorusso@gmail.com
+Makes a subset of a pixel time series from MODIS 
+Chlorophyll images.
 '''
 
 
