@@ -10,9 +10,19 @@ except ImportError:
     from urllib import urlretrieve
 
 import numpy as np
+import pytest
 
-from OceanSound.extract_pyhdf import extract_series as pyhdf_extract
-from OceanSound.extract_gdal import extract_series as gdal_extract
+try:
+    from OceanSound.extract_pyhdf import extract_series as pyhdf_extract
+    HAS_PYHDF = True
+except ImportError:
+    HAS_PYHDF = False
+
+try:
+    from OceanSound.extract_gdal import extract_series as gdal_extract
+    HAS_GDAL = True
+except ImportError:
+    HAS_GDAL = False
 
 
 CONTAINER = "http://41e7942089bad530cb53-26c284b979cc7ba85c89e77b5734ccd5.r9.cf2.rackcdn.com/"
@@ -31,6 +41,10 @@ def nan_equal(a, b):
 def setup_module(module):
     module.lat, module.lon = 0, 0
     module.indir = tempfile.mkdtemp()
+
+    if not HAS_GDAL and not HAS_PYHDF:
+        pytest.skip('PyHDF and GDAL not installed')
+
     for test_file in TEST_FILES:
         urlretrieve(CONTAINER + test_file, os.path.join(indir, test_file))
     module.pyhdf = pyhdf_extract(lat, lon, indir)
