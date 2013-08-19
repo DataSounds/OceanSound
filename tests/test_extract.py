@@ -2,6 +2,8 @@
 
 import tempfile
 import os
+import glob
+import shutil
 try:
     from urllib.request import urlretrieve
 except ImportError:
@@ -28,7 +30,7 @@ def nan_equal(a, b):
 
 def setup_module(module):
     module.lat, module.lon = 0, 0
-    indir = tempfile.mkdtemp()
+    module.indir = tempfile.mkdtemp()
     for test_file in TEST_FILES:
         urlretrieve(CONTAINER + test_file, os.path.join(indir, test_file))
     module.pyhdf = pyhdf_extract(lat, lon, indir)
@@ -39,8 +41,9 @@ def test_extract(tmpdir):
     assert nan_equal(pyhdf['Series'], gdal['Series'])
 
 
-def test_extracted(tmpdir):
-    assert len(pyhdf['Series']) == len(TEST_FILES) == len(gdal['Series'])
+def test_len(tmpdir):
+    assert len(pyhdf['Series']) == len(gdal['Series'])
+    assert len(pyhdf['Series']) == len(glob.glob(os.path.join(indir, 'A*')))
 
 
 def test_lon(tmpdir):
@@ -49,3 +52,7 @@ def test_lon(tmpdir):
 
 def test_lat(tmpdir):
     assert round(pyhdf['Lat'], 3) == round(gdal['Lat'], 3)
+
+
+def teardown_module(module):
+    shutil.rmtree(module.indir)
