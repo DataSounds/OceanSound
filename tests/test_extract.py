@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
+import tempfile
+import os
 try:
     from urllib.request import urlretrieve
 except ImportError:
     from urllib import urlretrieve
 
+import numpy as np
 
 from OceanSound.extract_pyhdf import extract_series as pyhdf_extract
 from OceanSound.extract_gdal import extract_series as gdal_extract
@@ -13,23 +16,36 @@ from OceanSound.extract_gdal import extract_series as gdal_extract
 CONTAINER = "http://41e7942089bad530cb53-26c284b979cc7ba85c89e77b5734ccd5.r9.cf2.rackcdn.com/"
 
 TEST_FILES = (
-  "A20021822002212.L3m_MO_CHL_chlor_a_9km",
-  "A20022132002243.L3m_MO_CHL_chlor_a_9km"
+    "A20021822002212.L3m_MO_CHL_chlor_a_9km",
+    "A20022132002243.L3m_MO_CHL_chlor_a_9km"
 )
 
 
-def test_extract(tmpdir):
-    lat, lon = 0, 0
-    indir = str(tmpdir)
+def nan_equal(a, b):
+    ''' http://stackoverflow.com/questions/10710328/ '''
+    return ((a == b) | (np.isnan(a) & np.isnan(b))).all()
+
+
+def setup_module(module):
+    module.lat, module.lon = 0, 0
+    indir = tempfile.mkdtemp()
     for test_file in TEST_FILES:
-        urlretrieve(CONTAINER + test_file, str(tmpdir.join(test_file)))
-    assert pyhdf_extract(lat, lon, indir) == gdal_extract(lat, lon, indir)
+        urlretrieve(CONTAINER + test_file, os.path.join(indir, test_file))
+    module.pyhdf = pyhdf_extract(lat, lon, indir)
+    module.gdal = gdal_extract(lat, lon, indir)
+
+
+def test_extract(tmpdir):
+    assert nan_equal(pyhdf['Series'], gdal['Series'])
+
 
 def test_extracted(tmpdir):
-    lat, lon = 0, 0
-    indir = str(tmpdir)
-    for test_file in TEST_FILES:
-        urlretrieve(CONTAINER + test_file, str(tmpdir.join(test_file)))
-    a_pyhdf = pyhdf_extract(lat, lon, indir)
-    a_gdal = gdal_extract(lat, lon, indir)
-    assert len(a_pyhdf['Series']) == len(TEST_FILES) == len(a_gdal['Series'])
+    assert len(pyhdf['Series']) == len(TEST_FILES) == len(gdal['Series'])
+
+
+def test_lon(tmpdir):
+    assert round(pyhdf['Lon'], 3) == round(gdal['Lon'], 3)
+
+
+def test_lat(tmpdir):
+    assert round(pyhdf['Lat'], 3) == round(gdal['Lat'], 3)
