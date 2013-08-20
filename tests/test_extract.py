@@ -43,7 +43,7 @@ def setup_module(module):
     module.indir = tempfile.mkdtemp()
 
     if not HAS_GDAL and not HAS_PYHDF:
-        pytest.skip('PyHDF and GDAL not installed')
+        pytest.skip('You must have PyHDF or GDAL installed!')
 
     for test_file in TEST_FILES:
         urlretrieve(CONTAINER + test_file, os.path.join(indir, test_file))
