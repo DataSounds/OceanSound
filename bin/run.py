@@ -11,7 +11,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import pygame.mixer
-#pygame.init()
 pygame.mixer.init()
 
 from DataSounds.sounds import get_music
@@ -43,7 +42,7 @@ def basemap_ui():
 
     points = []
     while len(points) == 0:
-        tellme('Selecione um ponto com o mouse')
+        tellme('Select one point with mouse click')
         points = plt.ginput(1, timeout=-1)
         if len(points) != 1:
             time.sleep(1)
@@ -53,7 +52,7 @@ def basemap_ui():
     return np.array((point[0],)), np.array((point[1],))
 
 def pos_command_line():
-    coords = raw_input('OceanSound> Entre com a latitude e a longitude: ')
+    coords = raw_input('OceanSound> Input latitude and longitude: ')
     lat, lon = coords.strip('(').strip(')').split(',')
     LATLIMS = np.array([float(lat)])
     LONLIMS = np.array([float(lon)])
@@ -62,7 +61,7 @@ def pos_command_line():
 def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
     land_checker = Basemap()
     if land_checker.is_land(LATLIMS_AM, LONLIMS_AM):
-        print 'SOS! Array indefinido. Ponto em terra!'
+        print 'SOS! Sorry you have selected a land pixel!'
         pygame.mixer.music.load('SOS.midi')
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
@@ -76,20 +75,20 @@ def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
 
         data_am = np.double(dataAM['Series'])
         if all(np.isnan(a) for a in data_am):
-            print 'THE SOUND OF SILENCE. Also, BATMAN. Tudo é Rest e NaN'
+            print 'THE SOUND OF SILENCE. Also, BATMAN. Everything is Rest and NaN'
             pygame.mixer.music.load('Batman_song.midi')
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
                 #plot animado?
                 time.sleep(1)
         else:
-            am = get_music(data_am) #, name='am')
+            am = get_music(data_am)
 
-            music = pygame.mixer.Sound('Oc.midi')#'am_cbo_select_music.mid')
-            pygame.mixer.music.load('Oc.midi')#'am_cbo_select_music.mid')
+            music = pygame.mixer.Sound('Oc.midi')
+            pygame.mixer.music.load('Oc.midi')
             pygame.mixer.music.play()
             anim = plot_animation(data_am,
-                        (u'Música do ponto Lat = %.2f Lon = %.2f'
+                        (u'Music from Lat = %.2f Lon = %.2f'
                             % (dataAM['Lat'], dataAM['Lon'])),
                         'serie.png',
                         t_max=36000)#music.get_length())
