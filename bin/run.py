@@ -69,17 +69,13 @@ def do_calc(LATLIMS_AM, LONLIMS_AM, indir, outdir):
             time.sleep(1)
     else:
         dataAM = extract_series(LATLIMS_AM, LONLIMS_AM, indir)
-        #np.savez(join(outdir, 'multiPixAM'), **dataAM)
-
-        #dataAM = np.load(join(outdir, 'multiPixAM.npz'))
-
         data_am = np.double(dataAM['Series'])
         if all(np.isnan(a) for a in data_am):
             print 'THE SOUND OF SILENCE. Also, BATMAN. Everything is Rest and NaN'
             pygame.mixer.music.load('Batman_song.midi')
             pygame.mixer.music.play()
             while pygame.mixer.music.get_busy():
-                #plot animado?
+                # Anim plot? See Matplotlib.Animation
                 time.sleep(1)
         else:
             am = get_music(data_am)
