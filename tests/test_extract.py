@@ -12,14 +12,15 @@ except ImportError:
 import numpy as np
 import pytest
 
+from OceanSound.extract import extract_series
 try:
-    from OceanSound.extract_pyhdf import extract_series as pyhdf_extract
+    from OceanSound import extract_pyhdf
     HAS_PYHDF = True
 except ImportError:
     HAS_PYHDF = False
 
 try:
-    from OceanSound.extract_gdal import extract_series as gdal_extract
+    from OceanSound import extract_gdal
     HAS_GDAL = True
 except ImportError:
     HAS_GDAL = False
@@ -47,8 +48,9 @@ def setup_module(module):
 
     for test_file in TEST_FILES:
         urlretrieve(CONTAINER + test_file, os.path.join(indir, test_file))
-    module.pyhdf = pyhdf_extract(lat, lon, indir)
-    module.gdal = gdal_extract(lat, lon, indir)
+    module.pyhdf = extract_series(lat, lon, indir, extract_pyhdf)
+    module.gdal = extract_series(lat, lon, indir, extract_gdal)
+    assert extract_pyhdf != extract_gdal
 
 
 def test_extract(tmpdir):
