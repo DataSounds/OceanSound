@@ -30,3 +30,14 @@ def find_point_index(LATLIMS, LONLIMS, lats, lons):
     ilg = np.int(np.argmin(np.abs(lons - np.min(LONLIMS))))
 
     return ilt, ilg
+
+
+def extract_grid(pin):
+    lon = np.arange(np.float(pin['Westernmost Longitude']),
+                    np.float(pin['Easternmost Longitude']),
+                    np.float(pin['Longitude Step']))
+    lat = np.arange(np.float(pin['Northernmost Latitude']),
+                    np.float(pin['Southernmost Latitude']),
+                    -np.float(pin['Latitude Step']))
+
+    return lat, lon
