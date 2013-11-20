@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-'''
+"""
 subset_MODIS using gdal package.
 
 Makes a subset of a pixel time series from MODIS
 Chlorophyll images.
-'''
+
+"""
 
 
 import gdal
