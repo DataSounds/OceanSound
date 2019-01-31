@@ -1,2 +1,2 @@
 DataSounds==1.2.5
-numpy==1.16.0
+numpy==1.16.1
