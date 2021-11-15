@@ -1,6 +1,6 @@
 DataSounds==1.2.5
 numpy==1.10.4
-pip==8.0.2
+pip==21.1
 setuptools==20.2
 wheel==0.29.0
 pytest-cov==2.2.1
